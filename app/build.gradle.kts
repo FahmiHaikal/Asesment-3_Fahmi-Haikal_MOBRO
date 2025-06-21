@@ -1,5 +1,5 @@
 import java.util.Properties
-
+import java.io.FileNotFoundException
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -23,12 +23,14 @@ android {
         }
 
         val properties = Properties()
-        properties.load(
-            project.rootProject.file("local.properties").inputStream()
-        )
-        buildConfigField(
-            "String", "API_KEY", properties.getProperty("API_KEY")
-        )
+        val localPropertiesFile = project.rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            properties.load(localPropertiesFile.inputStream())
+        } else {
+            throw FileNotFoundException("local.properties file not found. Please create it and add your API_KEY.")
+        }
+        buildConfigField("String", "API_KEY", "\"${properties.getProperty("API_KEY")}\"")
+
     }
 
     buildTypes {
